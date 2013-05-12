@@ -57,8 +57,19 @@ int main(int argc, char** argv)
 	}
 	else if (pid == 0)//child
 	{
-		while ((sem1 = sem_open("/_SEM1_", 0666)) == SEM_FAILED){}
-		while ((sem2 = sem_open("/_SEM2_", 0666)) == SEM_FAILED){}
+		if((sem1 = sem_open("/_SEM1_", O_CREAT, 0666, 0)) == SEM_FAILED)
+		{
+			printf("semaphore error\n");
+			sem_unlink("/_SEM1_");
+			return 1;
+		}
+		if((sem2 = sem_open("/_SEM2_", O_CREAT, 0666, 0)) == SEM_FAILED)
+		{
+			printf("semaphore error\n");
+			sem_unlink("/_SEM2_");
+			sem_unlink("/_SEM2_");
+			return 1;
+		}
 		sem_post(sem2);
 		sem_wait(sem1);
 		int fd = shm_open("/_MEMORY_", O_RDWR, 0666);
